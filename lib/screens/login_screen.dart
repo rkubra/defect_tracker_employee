@@ -25,7 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
     String code = codeController.text.trim();
 
     try {
-      // 🔎 Look for employee by fields (NOT doc ID)
       final query = await FirebaseFirestore.instance
           .collection('employees')
           .where('employeeId', isEqualTo: empId)
@@ -33,7 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
           .get();
 
       if (query.docs.isNotEmpty) {
-        // Pass empId to Dashboard
         Navigator.pushReplacementNamed(
           context,
           '/dashboard',
@@ -60,9 +58,10 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const Icon(Icons.bug_report, size: 100, color: Colors.indigo),
                 const SizedBox(height: 20),
-                const Text("Defect Tracker",
-                    style:
-                        TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+                const Text(
+                  "Defect Tracker",
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 40),
                 TextField(
                   controller: idController,
@@ -78,7 +77,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     labelText: "Unique Code",
                     border: OutlineInputBorder(),
                   ),
-                  obscureText: true,
                 ),
                 const SizedBox(height: 30),
                 if (_error != null)
@@ -86,7 +84,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 ElevatedButton(
                   onPressed: _loading ? null : _login,
                   style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50)),
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
                   child: _loading
                       ? const CircularProgressIndicator(color: Colors.white)
                       : const Text("Login"),
@@ -99,3 +98,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+ 

@@ -4,7 +4,6 @@ import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/location_screen.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -19,12 +18,21 @@ class DefectTrackerApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Defect Tracker',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(primarySwatch: Colors.indigo),
       initialRoute: '/',
       routes: {
         '/': (context) => const LoginScreen(),
-        '/dashboard': (context) => const DashboardScreen(),
         '/location': (context) => const LocationScreen(),
+      },
+      // Handle dashboard with arguments
+      onGenerateRoute: (settings) {
+        if (settings.name == '/dashboard') {
+          final empId = settings.arguments as String;
+          return MaterialPageRoute(
+            builder: (_) => DashboardScreen(empId: empId),
+          );
+        }
+        return null;
       },
     );
   }

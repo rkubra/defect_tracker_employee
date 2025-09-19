@@ -41,8 +41,9 @@ class _LocationScreenState extends State<LocationScreen> {
       return;
     }
 
-    Position pos = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+    final pos = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
     setState(() {
       location = "Lat: ${pos.latitude}, Lng: ${pos.longitude}";
     });

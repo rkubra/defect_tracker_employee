@@ -4,12 +4,23 @@ import 'package:geolocator/geolocator.dart';
 import 'login_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
-  const DashboardScreen({super.key});
+  final String empId;
+  const DashboardScreen({super.key, required this.empId});
+
+  Future<Map<String, dynamic>?> _getProjectDetails(String projectId) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('projects')
+        .where('projectId', isEqualTo: projectId)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      return snapshot.docs.first.data();
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
-    final String empId = ModalRoute.of(context)!.settings.arguments as String;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text("Assigned Projects"),
@@ -22,7 +33,7 @@ class DashboardScreen extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => const LoginScreen()),
               );
             },
-          )
+          ),
         ],
       ),
       body: StreamBuilder(
@@ -35,8 +46,7 @@ class DashboardScreen extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          var docs = snapshot.data!.docs;
-
+          final docs = snapshot.data!.docs;
           if (docs.isEmpty) {
             return const Center(child: Text("No projects assigned"));
           }
@@ -44,13 +54,39 @@ class DashboardScreen extends StatelessWidget {
           return ListView.builder(
             itemCount: docs.length,
             itemBuilder: (context, index) {
-              var data = docs[index];
-              return Card(
-                margin: const EdgeInsets.all(12),
-                child: ListTile(
-                  title: Text(data['projectName'] ?? "Unknown"),
-                  subtitle: Text("Role: ${data['role']}"),
-                ),
+              final assignment = docs[index];
+              final projectId = assignment['projectId'];
+              final role = assignment['role'];
+
+              return FutureBuilder<Map<String, dynamic>?>(
+                future: _getProjectDetails(projectId),
+                builder: (context, projectSnapshot) {
+                  if (projectSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const ListTile(title: Text("Loading project..."));
+                  }
+
+                  if (!projectSnapshot.hasData || projectSnapshot.data == null) {
+                    return const ListTile(title: Text("Project not found"));
+                  }
+
+                  final project = projectSnapshot.data!;
+
+                  return Card(
+                    margin: const EdgeInsets.all(12),
+                    child: ListTile(
+                      title: Text(
+                        project['name'] ?? "Unknown Project",
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      subtitle: Text(
+                        "Role: $role\nDuration: ${project['duration'] ?? 'N/A'}\nDescription: ${project['description'] ?? ''}",
+                      ),
+                      isThreeLine: true,
+                    ),
+                  );
+                },
               );
             },
           );
@@ -58,12 +94,19 @@ class DashboardScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
-          Position position = await Geolocator.getCurrentPosition(
-              desiredAccuracy: LocationAccuracy.high);
-
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          try {
+            final position = await Geolocator.getCurrentPosition(
+              desiredAccuracy: LocationAccuracy.high,
+            );
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-                  "Location: ${position.latitude}, ${position.longitude}")));
+                  "Location: ${position.latitude}, ${position.longitude}"),
+            ));
+          } catch (e) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Location error: $e")),
+            );
+          }
         },
         icon: const Icon(Icons.location_on),
         label: const Text("Live Location"),
