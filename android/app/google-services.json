@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "513726726062",
+    "project_id": "defect-tracker-bff6f",
+    "storage_bucket": "defect-tracker-bff6f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:513726726062:android:f5d0b21b6ea1b5feaf123f",
+        "android_client_info": {
+          "package_name": "com.example.defect_tracker_employee"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6PONjK_wxAtMlPbEE1lSoQ3h5LUSRC_0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
